@@ -1,0 +1,46 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String          @unique
+  password_hash String
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
+  created_cards Card[]
+  saved_cards   UserSavedCard[]
+}
+
+model Card {
+  id           String          @id @default(cuid())
+  category     String
+  secret_item  String
+  tips         String[]
+  difficulty   String?
+  creator_id   String?
+  is_public    Boolean         @default(true)
+  created_at   DateTime        @default(now())
+  creator      User?           @relation(fields: [creator_id], references: [id])
+  saved_by     UserSavedCard[]
+
+  @@unique([category, secret_item])
+}
+
+model UserSavedCard {
+  user_id  String
+  card_id  String
+  saved_at DateTime @default(now())
+  user     User     @relation(fields: [user_id], references: [id])
+  card     Card     @relation(fields: [card_id], references: [id])
+
+  @@id([user_id, card_id])
+}
