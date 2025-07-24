@@ -15,16 +15,14 @@
   --font-mono: var(--font-geist-mono, 'Courier New', monospace);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Dark Theme */
-    --background: #0051ff;
-    --foreground: #f3e9d2;
-    --card-bg: #23202a;
-    --card-border: #bfa14a;
-    --accent: #f7b731;
-    --highlight: #45aaf2;
-    --title: #ffe082;
-    --subtitle: #f7ca18;
-  }
+.dark {
+  /* Dark Theme */
+  --background: #0051ff;
+  --foreground: #f3e9d2;
+  --card-bg: #23202a;
+  --card-border: #bfa14a;
+  --accent: #f7b731;
+  --highlight: #45aaf2;
+  --title: #ffe082;
+  --subtitle: #f7ca18;
 }

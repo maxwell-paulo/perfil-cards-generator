@@ -24,7 +24,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body
         suppressHydrationWarning
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        style={{ background: "var(--background)", color: "var(--foreground)" }}
       >
         <Providers>
           <ThemeSwitcher />

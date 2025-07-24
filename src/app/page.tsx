@@ -12,7 +12,7 @@ export default function Home() {
   if (!mounted) return null;
 
   return (
-    <main className="bg-background flex flex-col items-center justify-center">
+    <main className="bg-background flex flex-col items-center justify-center" >
       Teste
     </main>
   );
