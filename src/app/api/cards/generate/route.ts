@@ -8,6 +8,7 @@ import {
     saveCard
 } from '@/lib/card-validation';
 import { recordUserCard } from '@/lib/user-cards';
+import { getExistingCardsByCategory } from '@/lib/card-lookup';
 
 export async function POST(request: NextRequest) {
     try {
@@ -63,10 +64,14 @@ export async function POST(request: NextRequest) {
                 });
             }
 
+            // Buscar cartas existentes na categoria para evitar duplicatas
+            const existingCards = await getExistingCardsByCategory(category.trim());
+
             // Gerar nova carta com Gemini
             const generatedCard = await generateCard({
                 category: category.trim(),
-                secretItem: secretItem.trim()
+                secretItem: secretItem.trim(),
+                existingCards: existingCards
             });
 
             // Salvar no banco
@@ -143,10 +148,14 @@ export async function POST(request: NextRequest) {
                 });
             }
 
+            // Buscar cartas existentes na categoria para evitar duplicatas
+            const existingCards = await getExistingCardsByCategory(category.trim());
+
             // Gerar nova carta com Gemini
             const generatedCard = await generateCard({
                 category: category.trim(),
-                difficulty: difficulty.trim()
+                difficulty: difficulty.trim(),
+                existingCards: existingCards
             });
 
             // Salvar no banco
