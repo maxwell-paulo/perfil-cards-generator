@@ -4,11 +4,10 @@ import { isValidCategory, isValidDifficulty } from '@/lib/utils';
 import { generateCard } from '@/lib/gemini';
 import {
     findExistingCardByAnswer,
-    findExistingCardByCategoryAndDifficulty,
     saveCard
 } from '@/lib/card-validation';
 import { recordUserCard } from '@/lib/user-cards';
-import { getExistingCardsByCategory } from '@/lib/card-lookup';
+import { getExistingCardsByCategory, findUnusedCardForUser } from '@/lib/card-lookup';
 
 export async function POST(request: NextRequest) {
     try {
@@ -124,17 +123,13 @@ export async function POST(request: NextRequest) {
                 );
             }
 
-            // Verificar se já existe carta com essa categoria e dificuldade (excluindo do usuário atual)
-            const existingCard = await findExistingCardByCategoryAndDifficulty(
-                category,
-                difficulty,
-                user.id
-            );
+            // PRIMEIRO: Verificar se existe carta da categoria/dificuldade que o usuário ainda NÃO usou
+            const unusedCard = await findUnusedCardForUser(user.id, category, difficulty);
 
-            if (existingCard) {
+            if (unusedCard) {
                 // Registrar que o usuário utilizou esta carta
                 try {
-                    await recordUserCard(user.id, existingCard.id);
+                    await recordUserCard(user.id, unusedCard.id);
                 } catch (error) {
                     console.error('Erro ao registrar carta do usuário:', error);
                     // Não falhar a requisição por causa disso, apenas logar o erro
@@ -142,11 +137,13 @@ export async function POST(request: NextRequest) {
 
                 return NextResponse.json({
                     success: true,
-                    card: existingCard,
-                    message: 'Carta já existe no banco de dados',
+                    card: unusedCard,
+                    message: 'Carta reutilizada do banco de dados',
                     fromDatabase: true
                 });
             }
+
+            // SEGUNDO: Se o usuário já usou todas as cartas existentes, gerar uma nova
 
             // Buscar cartas existentes na categoria para evitar duplicatas
             const existingCards = await getExistingCardsByCategory(category.trim());
@@ -178,7 +175,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({
                 success: true,
                 card: savedCard,
-                message: 'Carta gerada com sucesso',
+                message: 'Nova carta gerada com IA (todas as existentes já foram usadas)',
                 fromDatabase: false
             });
         }
