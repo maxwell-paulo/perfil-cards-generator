@@ -2,27 +2,84 @@
 
 
 :root {
-  /* Light Theme */
-  --background: #ffaa00;
-  --foreground: #1a1a1a;
-  --card-bg: #fffbe6;
-  --card-border: #e0c97f;
-  --accent: #e67e22;
-  --highlight: #2d9cdb;
-  --title: #7d5a19;
-  --subtitle: #b07d2c;
+  /* Light Theme - cores mais suaves e naturais */
+  --background: #ffffff;
+  --foreground: #1f2937;
+  --card-bg: #f9fafb;
+  --card-border: #e5e7eb;
+  --accent: #3b82f6;
+  --highlight: #10b981;
+  --title: #111827;
+  --subtitle: #6b7280;
+  --primary: #3b82f6;
+  --border: #e5e7eb;
   --font-sans: var(--font-geist-sans, Arial, Helvetica, sans-serif);
   --font-mono: var(--font-geist-mono, 'Courier New', monospace);
 }
 
 .dark {
-  /* Dark Theme */
-  --background: #0051ff;
-  --foreground: #f3e9d2;
-  --card-bg: #23202a;
-  --card-border: #bfa14a;
-  --accent: #f7b731;
-  --highlight: #45aaf2;
-  --title: #ffe082;
-  --subtitle: #f7ca18;
+  /* Dark Theme - cores mais escuras e contrastantes */
+  --background: #0f172a;
+  --foreground: #f1f5f9;
+  --card-bg: #1e293b;
+  --card-border: #334155;
+  --accent: #3b82f6;
+  --highlight: #10b981;
+  --title: #f1f5f9;
+  --subtitle: #94a3b8;
+  --primary: #3b82f6;
+  --border: #334155;
+}
+
+/* Classes utilitárias para background */
+.bg-app {
+  background-color: var(--background);
+}
+
+.text-app {
+  color: var(--foreground);
+}
+
+.bg-card {
+  background-color: var(--card-bg);
+}
+
+.border-card {
+  border-color: var(--card-border);
+}
+
+.border-border {
+  border-color: var(--border);
+}
+
+.text-primary {
+  color: var(--primary);
+}
+
+.bg-primary {
+  background-color: var(--primary);
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+.bg-accent {
+  background-color: var(--accent);
+}
+
+.text-highlight {
+  color: var(--highlight);
+}
+
+.bg-highlight {
+  background-color: var(--highlight);
+}
+
+.text-title {
+  color: var(--title);
+}
+
+.text-subtitle {
+  color: var(--subtitle);
 }

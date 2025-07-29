@@ -6,11 +6,11 @@ import React, { useEffect, useState } from "react";
 import { tv } from "tailwind-variants";
 
 const inputVariants = tv({
-    base: "absolute top-[3px] left-[4px] size-6 rounded-full flex items-center justify-center shadow-md transform transition duration-300 ease-in-out",
+    base: "absolute top-[3px] left-[4px] size-6 rounded-full flex items-center justify-center shadow-md transform transition duration-300 ease-in-out bg-primary",
     variants: {
         variant: {
-            dark: "translate-x-0 bg-primary/20",
-            light: "translate-x-6 bg-primary/20",
+            dark: "translate-x-0",
+            light: "translate-x-6",
         },
     },
     defaultVariants: {
@@ -46,9 +46,9 @@ export default function ThemeSwitcher() {
                         })}
                     >
                         {theme === "light" ? (
-                            <SunIcon className="text-primary size-4" />
+                            <SunIcon className="text-white size-4" />
                         ) : (
-                            <MoonIcon className="text-primary size-4" />
+                            <MoonIcon className="text-white size-4" />
                         )}
                     </div>
                 </div>
