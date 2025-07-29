@@ -7,6 +7,7 @@ import {
     findExistingCardByCategoryAndDifficulty,
     saveCard
 } from '@/lib/card-validation';
+import { recordUserCard } from '@/lib/user-cards';
 
 export async function POST(request: NextRequest) {
     try {
@@ -44,6 +45,16 @@ export async function POST(request: NextRequest) {
             const existingCard = await findExistingCardByAnswer(secretItem.trim(), category);
 
             if (existingCard) {
+                // Se usuário está logado, registrar que ele utilizou esta carta
+                if (user) {
+                    try {
+                        await recordUserCard(user.id, existingCard.id);
+                    } catch (error) {
+                        console.error('Erro ao registrar carta do usuário:', error);
+                        // Não falhar a requisição por causa disso, apenas logar o erro
+                    }
+                }
+
                 return NextResponse.json({
                     success: true,
                     card: existingCard,
@@ -66,6 +77,16 @@ export async function POST(request: NextRequest) {
                 difficulty: generatedCard.difficulty,
                 creator_id: user?.id
             });
+
+            // Se usuário está logado, registrar que ele utilizou esta carta
+            if (user) {
+                try {
+                    await recordUserCard(user.id, savedCard.id);
+                } catch (error) {
+                    console.error('Erro ao registrar carta do usuário:', error);
+                    // Não falhar a requisição por causa disso, apenas logar o erro
+                }
+            }
 
             return NextResponse.json({
                 success: true,
@@ -106,6 +127,14 @@ export async function POST(request: NextRequest) {
             );
 
             if (existingCard) {
+                // Registrar que o usuário utilizou esta carta
+                try {
+                    await recordUserCard(user.id, existingCard.id);
+                } catch (error) {
+                    console.error('Erro ao registrar carta do usuário:', error);
+                    // Não falhar a requisição por causa disso, apenas logar o erro
+                }
+
                 return NextResponse.json({
                     success: true,
                     card: existingCard,
@@ -128,6 +157,14 @@ export async function POST(request: NextRequest) {
                 difficulty: generatedCard.difficulty,
                 creator_id: user.id
             });
+
+            // Registrar que o usuário utilizou esta carta
+            try {
+                await recordUserCard(user.id, savedCard.id);
+            } catch (error) {
+                console.error('Erro ao registrar carta do usuário:', error);
+                // Não falhar a requisição por causa disso, apenas logar o erro
+            }
 
             return NextResponse.json({
                 success: true,

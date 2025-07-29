@@ -18,6 +18,7 @@ model User {
   updated_at    DateTime        @updatedAt
   created_cards Card[]
   saved_cards   UserSavedCard[]
+  user_cards    UserCards[]
 }
 
 model Card {
@@ -31,6 +32,7 @@ model Card {
   created_at   DateTime        @default(now())
   creator      User?           @relation(fields: [creator_id], references: [id])
   saved_by     UserSavedCard[]
+  user_cards   UserCards[]
 
   @@unique([category, secret_item])
 }
@@ -43,4 +45,16 @@ model UserSavedCard {
   card     Card     @relation(fields: [card_id], references: [id])
 
   @@id([user_id, card_id])
+}
+
+model UserCards {
+  user_id    String
+  card_id    String
+  created_at DateTime @default(now())
+  user       User     @relation(fields: [user_id], references: [id])
+  card       Card     @relation(fields: [card_id], references: [id])
+
+  @@id([user_id, card_id])
+  @@index([user_id])
+  @@index([card_id])
 }
