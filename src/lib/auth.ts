@@ -7,7 +7,7 @@ if (!JWT_SECRET) {
 }
 
 export function signToken(payload: object) {
-    return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+    return jwt.sign(payload, JWT_SECRET, { expiresIn: '24h' });
 }
 
 export function verifyToken<T = unknown>(token: string): T | null {

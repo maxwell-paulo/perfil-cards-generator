@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { getAuthToken, isAuthenticated, removeAuthToken } from "@/lib/cookies";
+import { useState } from "react";
+import { getAuthToken, isAuthenticated } from "@/lib/cookies";
 
 interface Card {
     id: string;
@@ -20,16 +20,6 @@ interface ApiResponse {
     error?: string;
 }
 
-interface AuthResponse {
-    success?: boolean;
-    user?: {
-        id: string;
-        email: string;
-        name?: string;
-    };
-    error?: string;
-}
-
 export default function TestApiPage() {
     const [category, setCategory] = useState("pessoa");
     const [secretItem, setSecretItem] = useState("");
@@ -37,25 +27,6 @@ export default function TestApiPage() {
     const [mode, setMode] = useState<"answer" | "category">("answer");
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<ApiResponse | null>(null);
-
-    // Estado para autenticação
-    const [authToken, setAuthToken] = useState("");
-    const [authResult, setAuthResult] = useState<AuthResponse | null>(null);
-    const [authLoading, setAuthLoading] = useState(false);
-    const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
-
-    // Verificar autenticação automática via cookies
-    useEffect(() => {
-        if (isAuthenticated()) {
-            const token = getAuthToken();
-            if (token) {
-                setAuthToken(token);
-                setIsUserAuthenticated(true);
-                // Testar automaticamente a autenticação
-                testAuthWithToken(token);
-            }
-        }
-    }, []);
 
     const categories = [
         "pessoa", "lugar", "objeto", "animal", "profissão",
@@ -79,8 +50,8 @@ export default function TestApiPage() {
                 "Content-Type": "application/json",
             };
 
-            // Adicionar token se disponível (manual ou dos cookies)
-            const token = authToken.trim() || getAuthToken();
+            // Adicionar token se disponível dos cookies
+            const token = getAuthToken();
             if (token) {
                 headers["Authorization"] = `Bearer ${token}`;
             }
@@ -103,85 +74,6 @@ export default function TestApiPage() {
         }
     };
 
-    const testAuthWithToken = async (token: string) => {
-        setAuthLoading(true);
-        setAuthResult(null);
-
-        try {
-            // Validar token tentando usá-lo em uma operação real
-            const response = await fetch("/api/cards/generate", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token.trim()}`
-                },
-                body: JSON.stringify({
-                    category: "teste",
-                    difficulty: "médio"
-                }),
-            });
-
-            if (response.status === 401) {
-                // Token inválido
-                setAuthResult({
-                    success: false,
-                    error: "Token inválido ou expirado"
-                });
-                setIsUserAuthenticated(false);
-                removeAuthToken();
-                setAuthToken("");
-            } else {
-                // Token válido (mesmo que a categoria seja inválida, o token foi aceito)
-                setAuthResult({
-                    success: true,
-                    user: {
-                        id: "verificado",
-                        email: "Token válido"
-                    }
-                });
-                setIsUserAuthenticated(true);
-            }
-        } catch (error) {
-            setAuthResult({
-                error: "Erro ao verificar autenticação"
-            });
-            setIsUserAuthenticated(false);
-            removeAuthToken();
-            setAuthToken("");
-        } finally {
-            setAuthLoading(false);
-        }
-    };
-
-    const handleTestAuth = async () => {
-        if (isAuthenticated() || authToken.trim()) {
-            const token = authToken.trim() || getAuthToken();
-            if (token) {
-                await testAuthWithToken(token);
-            }
-        } else {
-            setAuthResult({
-                error: "Nenhum token fornecido"
-            });
-        }
-    };
-
-    const handleLogout = async () => {
-        try {
-            await fetch("/api/auth/logout", {
-                method: "POST",
-            });
-        } catch (error) {
-            console.error("Erro ao fazer logout:", error);
-        } finally {
-            // Limpar estado local
-            removeAuthToken();
-            setAuthToken("");
-            setAuthResult(null);
-            setIsUserAuthenticated(false);
-        }
-    };
-
     return (
         <div className="bg-app text-app min-h-screen p-8">
             <div className="max-w-4xl mx-auto space-y-8">
@@ -190,106 +82,10 @@ export default function TestApiPage() {
                     <p className="text-subtitle">Teste a geração de cartas do jogo Perfil</p>
                 </div>
 
-                {/* Teste de Autenticação */}
-                <div className="bg-card border border-card rounded-lg p-6">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-title text-xl font-bold">🔐 Status de Autenticação</h2>
-                        <div className="flex items-center gap-2">
-                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${isUserAuthenticated ? 'bg-highlight text-white' : 'bg-gray-300 text-gray-700 dark:bg-gray-600 dark:text-gray-300'
-                                }`}>
-                                {isUserAuthenticated ? '✅ Autenticado' : '❌ Não Autenticado'}
-                            </span>
-                        </div>
-                    </div>
 
-                    {isUserAuthenticated ? (
-                        <div className="space-y-4">
-                            <div className="p-4 bg-green-50 border border-green-200 rounded-lg dark:bg-green-900/20 dark:border-green-800">
-                                <p className="text-green-700 dark:text-green-300">
-                                    🎉 <strong>Você está logado!</strong> O token foi carregado automaticamente dos cookies.
-                                </p>
-                            </div>
-
-                            <div className="flex gap-4">
-                                <button
-                                    onClick={handleTestAuth}
-                                    disabled={authLoading}
-                                    className="bg-highlight text-white px-4 py-2 rounded-md hover:opacity-90 transition-opacity disabled:opacity-50"
-                                >
-                                    {authLoading ? "Testando..." : "Verificar Autenticação"}
-                                </button>
-                                <button
-                                    onClick={handleLogout}
-                                    className="bg-red-500 text-white px-4 py-2 rounded-md hover:opacity-90 transition-opacity"
-                                >
-                                    Fazer Logout
-                                </button>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="space-y-4">
-                            <div>
-                                <label className="text-title font-medium block mb-2">Token JWT (opcional):</label>
-                                <input
-                                    type="text"
-                                    value={authToken}
-                                    onChange={(e) => setAuthToken(e.target.value)}
-                                    placeholder="Cole seu token JWT aqui ou faça login automaticamente"
-                                    className="w-full p-3 border border-border rounded-md bg-app text-app"
-                                />
-                            </div>
-                            <div className="flex gap-4">
-                                <button
-                                    onClick={handleTestAuth}
-                                    disabled={authLoading}
-                                    className="bg-highlight text-white px-4 py-2 rounded-md hover:opacity-90 transition-opacity disabled:opacity-50"
-                                >
-                                    {authLoading ? "Testando..." : "Testar Autenticação"}
-                                </button>
-                                <a
-                                    href="/login"
-                                    target="_blank"
-                                    className="bg-accent text-white px-4 py-2 rounded-md hover:opacity-90 transition-opacity"
-                                >
-                                    Ir para Login
-                                </a>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Resultado da autenticação */}
-                    {authResult && (
-                        <div className="mt-4 p-4 border border-border rounded-lg bg-app">
-                            {authResult.success ? (
-                                <div className="text-highlight">
-                                    <strong>✅ Autenticado com sucesso!</strong>
-                                    {authResult.user && (
-                                        <div className="mt-2 text-sm">
-                                            <p><strong>ID:</strong> {authResult.user.id}</p>
-                                            <p><strong>Email:</strong> {authResult.user.email}</p>
-                                            {authResult.user.name && <p><strong>Nome:</strong> {authResult.user.name}</p>}
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className="text-red-600 dark:text-red-400">
-                                    <strong>❌ Falha na autenticação:</strong> {authResult.error}
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
 
                 <div className="bg-card border border-card rounded-lg p-6">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-title text-xl font-bold">🎮 Geração de Cartas</h2>
-                        <div className="flex items-center gap-2">
-                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${isUserAuthenticated ? 'bg-highlight text-white' : 'bg-gray-300 text-gray-700 dark:bg-gray-600 dark:text-gray-300'
-                                }`}>
-                                {isUserAuthenticated ? '🔓 Autenticado' : '🔒 Não Autenticado'}
-                            </span>
-                        </div>
-                    </div>
+                    <h2 className="text-title text-xl font-bold mb-4">🎮 Geração de Cartas</h2>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Modo de geração */}
@@ -367,11 +163,11 @@ export default function TestApiPage() {
                                         </option>
                                     ))}
                                 </select>
-                                {!isUserAuthenticated && (
+                                {!isAuthenticated() && (
                                     <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md dark:bg-yellow-900/20 dark:border-yellow-800">
                                         <p className="text-yellow-700 dark:text-yellow-300 text-sm">
                                             ⚠️ <strong>Aviso:</strong> Este modo requer autenticação.
-                                            Faça login primeiro para usar esta funcionalidade.
+                                            <a href="/login" className="text-accent hover:underline ml-1">Faça login primeiro</a> para usar esta funcionalidade.
                                         </p>
                                     </div>
                                 )}
