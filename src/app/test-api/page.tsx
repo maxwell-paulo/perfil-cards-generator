@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { getAuthToken, isAuthenticated } from "@/lib/cookies";
+import PerfilCard from "@/components/PerfilCard";
 
 interface Card {
     id: string;
@@ -200,33 +201,38 @@ export default function TestApiPage() {
                                 </div>
 
                                 {result.card && (
-                                    <div className="bg-app p-4 rounded-lg border border-border">
-                                        <div className="grid grid-cols-2 gap-4 mb-4">
-                                            <div>
-                                                <strong className="text-title">Categoria:</strong>
-                                                <p className="text-app">{result.card.category}</p>
+                                    <div className="flex flex-col gap-4">
+                                        {/* Visualização estilo carta Perfil (proporção real, escalável) */}
+                                        <div className="flex flex-wrap items-start gap-6">
+                                            <PerfilCard
+                                                category={result.card.category}
+                                                secretItem={result.card.secret_item}
+                                                tips={result.card.tips}
+                                                difficulty={result.card.difficulty}
+                                                orientation="portrait"
+                                                scale={1.3}
+                                            />
+                                            {/* Metadados ao lado */}
+                                            <div className="bg-app p-4 rounded-lg border border-border min-w-[260px]">
+                                                <div className="grid grid-cols-2 gap-4 mb-2">
+                                                    <div>
+                                                        <strong className="text-title">Categoria:</strong>
+                                                        <p className="text-app">{result.card.category}</p>
+                                                    </div>
+                                                    <div>
+                                                        <strong className="text-title">Dificuldade:</strong>
+                                                        <p className="text-app">{result.card.difficulty}</p>
+                                                    </div>
+                                                    <div className="col-span-2">
+                                                        <strong className="text-title">Resposta:</strong>
+                                                        <p className="text-app">{result.card.secret_item}</p>
+                                                    </div>
+                                                    <div className="col-span-2">
+                                                        <strong className="text-title">ID:</strong>
+                                                        <p className="text-app text-sm break-all">{result.card.id}</p>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <strong className="text-title">Resposta:</strong>
-                                                <p className="text-app">{result.card.secret_item}</p>
-                                            </div>
-                                            <div>
-                                                <strong className="text-title">Dificuldade:</strong>
-                                                <p className="text-app">{result.card.difficulty}</p>
-                                            </div>
-                                            <div>
-                                                <strong className="text-title">ID:</strong>
-                                                <p className="text-app text-sm">{result.card.id}</p>
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <strong className="text-title">Dicas:</strong>
-                                            <ol className="list-decimal list-inside mt-2 space-y-1">
-                                                {result.card.tips.map((tip, index) => (
-                                                    <li key={index} className="text-app">{tip}</li>
-                                                ))}
-                                            </ol>
                                         </div>
                                     </div>
                                 )}
